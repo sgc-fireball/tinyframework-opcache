@@ -9,7 +9,7 @@
   },
   "require": {
     "php": ">=8.0",
-    "ext-zend opcache": "*"
+    "ext-zend-opcache": "*"
   },
   "require-dev": {
     "phpstan/phpstan": "^0.12"
