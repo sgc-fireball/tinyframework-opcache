@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace TinyFramework\Opcache\Commands;
+namespace TinyFramework\Opcache\Console\Commands;
 
 use TinyFramework\Console\CommandAwesome;
 use TinyFramework\Console\Input\InputDefinitionInterface;

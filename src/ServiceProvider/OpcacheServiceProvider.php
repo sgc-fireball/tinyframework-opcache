@@ -4,9 +4,9 @@ namespace TinyFramework\Opcache\ServiceProvider;
 
 use TinyFramework\Core\ConfigInterface;
 use TinyFramework\Http\Router;
-use TinyFramework\Opcache\Commands\TinyframeworkOpcacheClearCommand;
-use TinyFramework\Opcache\Commands\TinyframeworkOpcachePreloadCommand;
-use TinyFramework\Opcache\Commands\TinyframeworkOpcacheStatusCommand;
+use TinyFramework\Opcache\Console\Commands\TinyframeworkOpcacheClearCommand;
+use TinyFramework\Opcache\Console\Commands\TinyframeworkOpcachePreloadCommand;
+use TinyFramework\Opcache\Console\Commands\TinyframeworkOpcacheStatusCommand;
 use TinyFramework\Opcache\Http\Middleware\OpcacheMiddlewaere;
 use TinyFramework\ServiceProvider\ServiceProviderAwesome;
 use TinyFramework\Opcache\Http\Controllers\OpcacheController;
