@@ -27,7 +27,7 @@
   "extra": {
     "tinyframework": {
       "providers": [
-        ""
+        "\\TinyFramework\\Opcache\\ServiceProvider\\OpcacheServiceProvider"
       ]
     }
   }
