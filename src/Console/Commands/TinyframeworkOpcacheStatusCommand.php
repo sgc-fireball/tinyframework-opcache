@@ -34,12 +34,12 @@ class TinyframeworkOpcacheStatusCommand extends CommandAwesome
         $curls = [];
         $multi = curl_multi_init();
         foreach ($this->input->option('url')->value() as $url) {
-            $url = (new URL($url))
-                ->path('/__opcache/status')
-                ->query(['key' => hash('sha512', config('app.key'))]);
+            $url = (new URL($url))->path('/__opcache/clear')->query([]);
             $curl = curl_init($url->__toString());
-            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_VERBOSE, $this->output->verbosity() > 0);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, ['key' => hash('sha512', config('app.secret'))]);
             curl_multi_add_handle($multi, $curl);
             $curls[] = $curl;
         }

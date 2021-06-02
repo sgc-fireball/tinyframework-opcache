@@ -35,7 +35,7 @@ class OpcacheServiceProvider extends ServiceProviderAwesome
         $router->group(['middleware' => OpcacheMiddlewaere::class], function (Router $router) {
             $router->post('__opcache/status', OpcacheController::class . '@status')->name('opcache.status');
             $router->post('__opcache/preload', OpcacheController::class . '@preload')->name('opcache.preload');
-            $router->post('__opcache/reset', OpcacheController::class . '@reset')->name('opcache.reset');
+            $router->post('__opcache/clear', OpcacheController::class . '@clear')->name('opcache.clear');
         });
     }
 

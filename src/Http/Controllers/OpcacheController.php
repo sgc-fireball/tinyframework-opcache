@@ -51,12 +51,12 @@ class OpcacheController
         ]);
     }
 
-    public function reset()
+    public function clear()
     {
         if (!opcache_reset()) {
             return Response::json([
                 'error' => 1,
-                'data' => 'Could not reset opcache store.',
+                'data' => 'Could not clear opcache store.',
             ], 500);
         }
         return Response::json([

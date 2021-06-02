@@ -12,8 +12,9 @@ class OpcacheMiddlewaere implements MiddlewareInterface
 
     public function handle(Request $request, Closure $next, ...$parameters): Response
     {
-        if (!hash_equals(hash('sha512', config('app.key')), $request->get('key'))) {
-            return Response::error(404);
+        $key = $request->post('key');
+        if (!$key || !hash_equals(hash('sha512', config('app.secret')), $key)) {
+            return Response::error(403);
         }
         return $next($request);
     }
