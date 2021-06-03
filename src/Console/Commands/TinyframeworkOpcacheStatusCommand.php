@@ -56,14 +56,15 @@ class TinyframeworkOpcacheStatusCommand extends CommandAwesome
         } while ($running);
 
         $table = new Table($this->output);
-        $table->header(['node', 'enable', 'memory', 'hits']);
+        $table->header(['node', 'enable', 'memory', 'hits', 'scripts']);
         foreach ($curls as $curl) {
             $status = curl_getinfo($curl['curl'], CURLINFO_HTTP_CODE);
             $row = [
                 'host' => $curl['host'],
                 'enable' => '?',
                 'memory' => '?',
-                'hits' => '?'
+                'hits' => '?',
+                'scripts' => '?',
             ];
             if ($status === 200) {
                 $json = json_decode(curl_multi_getcontent($curl['curl']), true);
@@ -78,6 +79,7 @@ class TinyframeworkOpcacheStatusCommand extends CommandAwesome
                         2
                     ) . '%';
                 $row['hits'] = round($json['data']['opcache_statistics']['opcache_hit_rate'], 2) . '%';
+                $row['scripts'] = (string)$json['data']['opcache_statistics']['num_cached_scripts'];
             }
             $table->row($row);
             curl_multi_remove_handle($multi, $curl['curl']);
