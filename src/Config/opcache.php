@@ -9,6 +9,7 @@ return [
         root_dir() . '/vendor/sgc-fireball'
     ],
     'excludes' => [
-        root_dir() . '/vendor/sgc-fireball/tinyframework/src/Files',
+        root_dir() . '/vendor/sgc-fireball/tinyframework/src/Files/console.php',
+        root_dir() . '/vendor/sgc-fireball/tinyframework/src/Files/swoole.php',
     ]
 ];

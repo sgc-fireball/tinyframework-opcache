@@ -22,27 +22,32 @@ class OpcacheController
     {
         $preloads = config('opcache.preloads');
         $excludes = config('opcache.excludes');
+
         foreach ($preloads as $path) {
             if (!is_dir($path)) {
                 continue;
             }
+
             $directory = new RecursiveDirectoryIterator($path);
             $iterator = new RecursiveIteratorIterator($directory);
             /** @var SplFileInfo $file */
             foreach ($iterator as $file) {
-                if (!$file->isFile()) {
-                    continue;
+                try {
+                    if (!$file->isFile()) {
+                        continue;
+                    }
+                    if ($file->getExtension() !== 'php') {
+                        continue;
+                    }
+                    if (in_array($file->getPathname(), $excludes)) {
+                        continue;
+                    }
+                    if (opcache_is_script_cached($file->getPathname())) {
+                        continue;
+                    }
+                    opcache_compile_file($file->getPathname());
+                } catch (\Throwable $e) {
                 }
-                if ($file->getExtension() !== 'php') {
-                    continue;
-                }
-                if (in_array($file->getPathname(), $excludes)) {
-                    continue;
-                }
-                if (opcache_is_script_cached($file->getPathname())) {
-                    continue;
-                }
-                opcache_compile_file($file->getPathname());
             }
         }
         return Response::json([
