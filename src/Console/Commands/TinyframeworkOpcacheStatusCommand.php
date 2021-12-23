@@ -67,19 +67,26 @@ class TinyframeworkOpcacheStatusCommand extends CommandAwesome
                 'scripts' => '?',
             ];
             if ($status === 200) {
-                $json = json_decode(curl_multi_getcontent($curl['curl']), true);
+                $body = curl_multi_getcontent($curl['curl']);
+                $json = json_decode($body, true);
                 if ($this->output->verbosity() > 0) {
                     $this->output->box($curl['host']);
-                    print_r($json['data']);
                 }
-                $row['enable'] = $json['data']['opcache_enabled'] ? 'yes' : 'no';
-                $row['memory'] = round(
-                        $json['data']['memory_usage']['used_memory'] /
-                        ($json['data']['memory_usage']['used_memory'] + $json['data']['memory_usage']['used_memory']),
-                        2
-                    ) . '%';
-                $row['hits'] = round($json['data']['opcache_statistics']['opcache_hit_rate'], 2) . '%';
-                $row['scripts'] = (string)$json['data']['opcache_statistics']['num_cached_scripts'];
+                if ($json['data'] === false) {
+                    $row['enable'] = 'no';
+                    $row['memory'] = '0%';
+                    $row['hits'] = '0%';
+                    $row['scripts'] = '0';
+                } else {
+                    $row['enable'] = $json['data']['opcache_enabled'] ? 'yes' : 'no';
+                    $row['memory'] = round(
+                            $json['data']['memory_usage']['used_memory'] /
+                            ($json['data']['memory_usage']['used_memory'] + $json['data']['memory_usage']['used_memory']),
+                            2
+                        ) . '%';
+                    $row['hits'] = round($json['data']['opcache_statistics']['opcache_hit_rate'], 2) . '%';
+                    $row['scripts'] = (string)$json['data']['opcache_statistics']['num_cached_scripts'];
+                }
             }
             $table->row($row);
             curl_multi_remove_handle($multi, $curl['curl']);

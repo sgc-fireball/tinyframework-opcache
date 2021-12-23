@@ -39,8 +39,10 @@ class OpcacheController
                     if ($file->getExtension() !== 'php') {
                         continue;
                     }
-                    if (in_array($file->getPathname(), $excludes)) {
-                        continue;
+                    foreach ($excludes as $exclude) {
+                        if (str_starts_with($file->getPathname(), $exclude)) {
+                            continue 2;
+                        }
                     }
                     if (opcache_is_script_cached($file->getPathname())) {
                         continue;

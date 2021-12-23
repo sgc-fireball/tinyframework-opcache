@@ -7,7 +7,7 @@ use TinyFramework\Http\Middleware\MiddlewareInterface;
 use TinyFramework\Http\Request;
 use TinyFramework\Http\Response;
 
-class OpcacheMiddlewaere implements MiddlewareInterface
+class OpcacheMiddleware implements MiddlewareInterface
 {
 
     public function handle(Request $request, Closure $next, ...$parameters): Response
