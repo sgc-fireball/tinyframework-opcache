@@ -17,19 +17,32 @@ class TinyframeworkOpcacheStatusCommand extends CommandAwesome
     protected function configure(): InputDefinitionInterface
     {
         return parent::configure()
-            ->option(Option::create(
-                'url',
-                null,
-                Option::VALUE_IS_ARRAY,
-                'Defined each deep node url, if needed.',
-                []
-            ))
+            ->option(
+                Option::create(
+                    'url',
+                    'u',
+                    Option::VALUE_IS_ARRAY,
+                    'Defined each deep node url, if needed.',
+                    []
+                )
+            )
+            ->option(
+                Option::create(
+                    'json',
+                    'j',
+                    Option::VALUE_NONE,
+                    'Enable json output.',
+                    []
+                )
+            )
             ->description('Print php-fpm opcache status.');
     }
 
     public function run(InputInterface $input, OutputInterface $output): int
     {
         parent::run($input, $output);
+        $jsonOutput = (bool)$this->input->option('json')->value();
+
         $curls = [];
         $multi = curl_multi_init();
         $urls = $this->input->option('url')->value();
@@ -51,8 +64,9 @@ class TinyframeworkOpcacheStatusCommand extends CommandAwesome
             ];
         }
 
-        $this->output->write('[....] Collection opcache information');
-        $running = null;
+        if (!$jsonOutput) {
+            $this->output->write('[....] Collection opcache information');
+        }
         do {
             usleep(100);
             curl_multi_exec($multi, $running);
@@ -60,11 +74,12 @@ class TinyframeworkOpcacheStatusCommand extends CommandAwesome
         } while ($running);
 
         $table = new Table($this->output);
-        $table->header(['node', 'enable', 'memory', 'hits', 'scripts']);
+        $table->header(['host', 'node', 'enable', 'memory', 'hits', 'scripts']);
         foreach ($curls as $curl) {
             $status = curl_getinfo($curl['curl'], CURLINFO_HTTP_CODE);
             $row = [
                 'host' => $curl['host'],
+                'node' => '?',
                 'enable' => '?',
                 'memory' => '?',
                 'hits' => '?',
@@ -77,17 +92,19 @@ class TinyframeworkOpcacheStatusCommand extends CommandAwesome
                     $this->output->box($curl['host']);
                 }
                 if ($json['data'] === false) {
+                    $row['node'] = '-';
                     $row['enable'] = 'no';
                     $row['memory'] = '0%';
                     $row['hits'] = '0%';
                     $row['scripts'] = '0';
                 } else {
+                    $row['node'] = $json['data']['node'];
                     $row['enable'] = (bool)$json['data']['opcache_enabled'] ? 'yes' : 'no';
                     $row['memory'] = round(
-                        $json['data']['memory_usage']['used_memory'] /
-                        ($json['data']['memory_usage']['used_memory'] + $json['data']['memory_usage']['used_memory']),
-                        2
-                    ) . '%';
+                            $json['data']['memory_usage']['used_memory'] /
+                            ($json['data']['memory_usage']['used_memory'] + $json['data']['memory_usage']['used_memory']),
+                            2
+                        ) . '%';
                     $row['hits'] = round($json['data']['opcache_statistics']['opcache_hit_rate'], 2) . '%';
                     $row['scripts'] = (string)$json['data']['opcache_statistics']['num_cached_scripts'];
                 }
@@ -95,10 +112,22 @@ class TinyframeworkOpcacheStatusCommand extends CommandAwesome
             $table->row($row);
             curl_multi_remove_handle($multi, $curl['curl']);
         }
-        $this->output->write("\r[<green>DONE</green>]\n");
-        $table->render();
-
         curl_multi_close($multi);
+
+        if (!$jsonOutput) {
+            $this->output->write("\r[<green>DONE</green>]\n");
+            $table->render();
+        } else {
+            $this->output->write(
+                json_encode(
+                    array_map(
+                        fn($row) => array_combine($table->header(), $row),
+                        $table->rows()
+                    )
+                )
+            );
+        }
+
         return 0;
     }
 }

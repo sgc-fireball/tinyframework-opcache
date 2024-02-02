@@ -15,7 +15,10 @@ class OpcacheController
     {
         return Response::json([
             'error' => 0,
-            'data' => opcache_get_status(false),
+            'data' => array_merge(
+                ['node' => node()],
+                opcache_get_status(false)
+            )
         ]);
     }
 
@@ -55,7 +58,9 @@ class OpcacheController
         }
         return Response::json([
             'error' => 0,
-            'data' => null,
+            'data' => [
+                'node' => node()
+            ],
         ]);
     }
 
@@ -69,7 +74,9 @@ class OpcacheController
         }
         return Response::json([
             'error' => 0,
-            'data' => null,
+            'data' => [
+                'node' => node()
+            ],
         ]);
     }
 }

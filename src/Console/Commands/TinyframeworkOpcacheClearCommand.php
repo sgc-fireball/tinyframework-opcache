@@ -54,7 +54,6 @@ class TinyframeworkOpcacheClearCommand extends CommandAwesome
         }
 
         $this->output->write('Clear opcache on nodes:');
-        $running = null;
         do {
             usleep(100);
             curl_multi_exec($multi, $running);
