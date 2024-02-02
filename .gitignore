@@ -1,8 +1,10 @@
-/vendor
+/.idea/
+/.reports/
+/.vscode/
+/storage/
+/vendor/
+.DS_Store
+.phpunit.result.cache
 composer.phar
 composer.lock
-.DS_Store
 Thumbs.db
-/.idea
-/.vscode
-.phpunit.result.cache

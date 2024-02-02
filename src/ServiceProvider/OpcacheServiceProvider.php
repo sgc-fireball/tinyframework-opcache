@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TinyFramework\Opcache\ServiceProvider;
 
@@ -7,13 +9,12 @@ use TinyFramework\Http\Router;
 use TinyFramework\Opcache\Console\Commands\TinyframeworkOpcacheClearCommand;
 use TinyFramework\Opcache\Console\Commands\TinyframeworkOpcachePreloadCommand;
 use TinyFramework\Opcache\Console\Commands\TinyframeworkOpcacheStatusCommand;
+use TinyFramework\Opcache\Http\Controllers\OpcacheController;
 use TinyFramework\Opcache\Http\Middleware\OpcacheMiddleware;
 use TinyFramework\ServiceProvider\ServiceProviderAwesome;
-use TinyFramework\Opcache\Http\Controllers\OpcacheController;
 
 class OpcacheServiceProvider extends ServiceProviderAwesome
 {
-
     public function register(): void
     {
         $this->container->tag([
@@ -40,5 +41,4 @@ class OpcacheServiceProvider extends ServiceProviderAwesome
             $router->post('__opcache/clear', OpcacheController::class . '@clear')->name('opcache.clear');
         });
     }
-
 }

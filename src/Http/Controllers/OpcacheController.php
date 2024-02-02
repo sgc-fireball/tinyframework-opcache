@@ -1,16 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TinyFramework\Opcache\Http\Controllers;
 
-use SplFileInfo;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SplFileInfo;
 use TinyFramework\Http\Response;
 
 class OpcacheController
 {
-
-    public function status()
+    public function status(): Response
     {
         return Response::json([
             'error' => 0,
@@ -18,7 +19,7 @@ class OpcacheController
         ]);
     }
 
-    public function preload()
+    public function preload(): Response
     {
         $preloads = config('opcache.preloads');
         $excludes = config('opcache.excludes');
@@ -58,7 +59,7 @@ class OpcacheController
         ]);
     }
 
-    public function clear()
+    public function clear(): Response
     {
         if (!opcache_reset()) {
             return Response::json([
@@ -71,5 +72,4 @@ class OpcacheController
             'data' => null,
         ]);
     }
-
 }

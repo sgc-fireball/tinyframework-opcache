@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TinyFramework\Opcache\Console\Commands;
 
@@ -12,7 +14,6 @@ use TinyFramework\Http\URL;
 
 class TinyframeworkOpcacheStatusCommand extends CommandAwesome
 {
-
     protected function configure(): InputDefinitionInterface
     {
         return parent::configure()
@@ -32,11 +33,14 @@ class TinyframeworkOpcacheStatusCommand extends CommandAwesome
         $curls = [];
         $multi = curl_multi_init();
         $urls = $this->input->option('url')->value();
-        $urls = empty($urls) ? [config('app.url')] : $urls;
+        $urls = is_array($urls) ? $urls : [];
+        $urls = (bool)count($urls) ? $urls : config('opcache.urls');
+        $urls = (bool)count($urls) ? $urls : [config('app.url')];
+        $verbosity = 0 < (int)$this->output->verbosity();
         foreach ($urls as $host) {
             $url = (new URL($host))->path('/__opcache/status')->query([]);
             $curl = curl_init($url->__toString());
-            curl_setopt($curl, CURLOPT_VERBOSE, $this->output->verbosity() > 1);
+            curl_setopt($curl, CURLOPT_VERBOSE, $verbosity);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($curl, CURLOPT_POST, true);
             curl_setopt($curl, CURLOPT_POSTFIELDS, ['key' => hash('sha512', config('app.secret'))]);
@@ -69,7 +73,7 @@ class TinyframeworkOpcacheStatusCommand extends CommandAwesome
             if ($status === 200) {
                 $body = curl_multi_getcontent($curl['curl']);
                 $json = json_decode($body, true);
-                if ($this->output->verbosity() > 0) {
+                if ($verbosity) {
                     $this->output->box($curl['host']);
                 }
                 if ($json['data'] === false) {
@@ -78,12 +82,12 @@ class TinyframeworkOpcacheStatusCommand extends CommandAwesome
                     $row['hits'] = '0%';
                     $row['scripts'] = '0';
                 } else {
-                    $row['enable'] = $json['data']['opcache_enabled'] ? 'yes' : 'no';
+                    $row['enable'] = (bool)$json['data']['opcache_enabled'] ? 'yes' : 'no';
                     $row['memory'] = round(
-                            $json['data']['memory_usage']['used_memory'] /
-                            ($json['data']['memory_usage']['used_memory'] + $json['data']['memory_usage']['used_memory']),
-                            2
-                        ) . '%';
+                        $json['data']['memory_usage']['used_memory'] /
+                        ($json['data']['memory_usage']['used_memory'] + $json['data']['memory_usage']['used_memory']),
+                        2
+                    ) . '%';
                     $row['hits'] = round($json['data']['opcache_statistics']['opcache_hit_rate'], 2) . '%';
                     $row['scripts'] = (string)$json['data']['opcache_statistics']['num_cached_scripts'];
                 }
@@ -97,5 +101,4 @@ class TinyframeworkOpcacheStatusCommand extends CommandAwesome
         curl_multi_close($multi);
         return 0;
     }
-
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TinyFramework\Opcache\Console\Commands;
 
@@ -11,17 +13,18 @@ use TinyFramework\Http\URL;
 
 class TinyframeworkOpcacheClearCommand extends CommandAwesome
 {
-
     protected function configure(): InputDefinitionInterface
     {
         return parent::configure()
-            ->option(Option::create(
-                'url',
-                null,
-                Option::VALUE_IS_ARRAY,
-                'Defined each deep node url, if needed.',
-                []
-            ))
+            ->option(
+                Option::create(
+                    'url',
+                    null,
+                    Option::VALUE_IS_ARRAY,
+                    'Defined each deep node url, if needed.',
+                    []
+                )
+            )
             ->description('Flush the php-fpm opcache cache.');
     }
 
@@ -32,11 +35,14 @@ class TinyframeworkOpcacheClearCommand extends CommandAwesome
         $curls = [];
         $multi = curl_multi_init();
         $urls = $this->input->option('url')->value();
-        $urls = empty($urls) ? [config('app.url')] : $urls;
+        $urls = is_array($urls) ? $urls : [];
+        $urls = (bool)count($urls) ? $urls : config('opcache.urls');
+        $urls = (bool)count($urls) ? $urls : [config('app.url')];
+        $verbosity = 0 < (int)$this->output->verbosity();
         foreach ($urls as $host) {
             $url = (new URL($host))->path('/__opcache/clear')->query([]);
             $curl = curl_init($url->__toString());
-            curl_setopt($curl, CURLOPT_VERBOSE, $this->output->verbosity() > 0);
+            curl_setopt($curl, CURLOPT_VERBOSE, $verbosity);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($curl, CURLOPT_POST, true);
             curl_setopt($curl, CURLOPT_POSTFIELDS, ['key' => hash('sha512', config('app.secret'))]);
@@ -67,5 +73,4 @@ class TinyframeworkOpcacheClearCommand extends CommandAwesome
         curl_multi_close($multi);
         return 0;
     }
-
 }

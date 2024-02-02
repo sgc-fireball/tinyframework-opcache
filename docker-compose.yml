@@ -1,0 +1,91 @@
+version: "3.7"
+
+services:
+  php:
+    image: "tinyframework-opcache:latest"
+    build: "."
+    environment:
+      - "APP_URL=http://localhost:8000"
+      - "APP_URLS=http://tinyframework-opcache-php-1:8000,http://tinyframework-opcache-php-2:8000,http://tinyframework-opcache-php-3:8000,http://tinyframework-opcache-php-4:8000"
+      - "APP_ENV=dev"
+      - "APP_SECRET=secret"
+      - "APP_DEBUG=true"
+      - "REDIS_HOST=redis"
+      - "REDIS_PORT=6379"
+      - "DATABASE_DRIVER=mysql"
+      - "BROADCAST_DRIVER=redis"
+      - "CACHE_DRIVER=none"
+      - "QUEUE_DRIVER=sync"
+      - "MYSQL_HOST=mysql"
+      - "MYSQL_USERNAME=tinyframework"
+      - "MYSQL_PASSWORD=tinyframework"
+      - "MYSQL_DATABASE=tinyframework"
+      - "SMTP_HOST=smtp"
+      - "SMTP_PORT=1025"
+      - "SMTP_ENCRYPTION=none"
+      - "MAIL_FROM_ADDRESS=auth@tinyframework.test"
+      - "MAIL_FROM_NAME=TinyFramework"
+      - "SWOOLE_HOST=0.0.0.0"
+      - "SWOOLE_PORT=8000"
+    depends_on:
+      - "mysql"
+      - "redis"
+      - "smtp"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - "~/.composer/auth.json:/home/app/.composer/auth.json"
+      - "~/.composer/auth.json:/home/app/.config/composer/auth.json"
+      - "./:/app/custom-plugins/tinyframework-opcache:rw"
+      - "~/PrivateWorkspace/tinyframework:/app/vendor/sgc-fireball/tinyframework:ro"
+    deploy:
+      replicas: 4
+    networks:
+      - "tinyframework-opcache"
+
+  mysql:
+    image: "mariadb:10.5"
+    environment:
+      - "MYSQL_ROOT_PASSWORD=root"
+      - "MYSQL_DATABASE=tinyframework"
+      - "MYSQL_USER=tinyframework"
+      - "MYSQL_PASSWORD=tinyframework"
+    ports:
+      - "3306:3306" # mysql
+    healthcheck:
+      test: [ "CMD", "mysqlcheck", "-h", "localhost", "-P", "3306", "-u", "shopware", "-pshopware", "shopware" ]
+      interval: "30s"
+      timeout: "5s"
+      retries: 60
+    networks:
+      - "tinyframework-opcache"
+
+  smtp:
+    image: "axllent/mailpit:latest"
+    ports:
+      - "1025:1025" # smtp
+      - "8025:8025" # http
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8025/" ]
+      interval: "30s"
+      timeout: "5s"
+      retries: 60
+    networks:
+      - "tinyframework-opcache"
+
+  redis:
+    image: "redis:4.0.14-alpine3.9"
+    ports:
+      - "6379:6379" # redis
+    healthcheck:
+      test: [ "CMD", "redis-cli", "PING" ]
+      interval: "30s"
+      timeout: "5s"
+      retries: 60
+    networks:
+      - "tinyframework-opcache"
+
+networks:
+  tinyframework-opcache:
+    driver: "bridge"
+    name: "tinyframework-opcache"

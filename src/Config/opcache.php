@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 return [
     'preloads' => [
@@ -13,4 +15,5 @@ return [
         root_dir() . '/vendor/sgc-fireball/tinyframework/src/Files/',
         root_dir() . '/vendor/sgc-fireball/tinyframework/vendor/',
     ],
+    'urls' => explode(',', env('APP_URLS', '')),
 ];
