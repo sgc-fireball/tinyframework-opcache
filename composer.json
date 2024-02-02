@@ -14,9 +14,11 @@
   },
   "require": {
     "php": ">=8.0",
-    "ext-zend-opcache": "*",
     "ext-curl": "*",
     "roave/security-advisories": "dev-latest"
+  },
+  "suggest": {
+    "ext-zend-opcache": "To allow preload php files, request status and cache clear via cli."
   },
   "require-dev": {
     "cyclonedx/cyclonedx-php-composer": "^4.2",
